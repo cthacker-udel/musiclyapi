@@ -18,11 +18,11 @@ const dbDebugger = require('debug')('app:db');
 const port = process.env.PORT | 3000;
 
 app.use(express.json());
-app.use(logger);
-app.use(morgan);
-app.use(auth);
+//app.use(logger);
+//app.use(morgan);
+//app.use(auth);
 
-const music = Joi.object({
+const songSchema = Joi.object({
 
     title: Joi.string().min(1).required(),
     genre: Joi.string().min(1).required(),
@@ -60,13 +60,13 @@ app.get('/api/songs/:id',(req,res) => {
 
 app.get('/api/songs/byGenre/:genreType',(req,res) => {
 
-    const songs = songs.filter(e => e.genre === req.params.genreType);
+    const theSongs = songs.filter(e => e.genre.toLowerCase() === req.params.genreType.toLowerCase());
 
-    if(songs.length === 0){
+    if(theSongs.length === 0){
         return res.status(404).send(`No songs of genre ${req.params.genreType} in database`);
     }
     else{
-        return res.send(songs);
+        return res.send(theSongs);
     }
 
 });
@@ -83,6 +83,78 @@ app.get('/api/songs/byTitle/:titleName',(req,res) => {
     }
 
 });
+
+app.post('/api/songs',(req,res) => {
+
+    const {error, value } = songSchema.validate(req.body);
+
+    if(error){
+        return res.status(400).send('Invalid song sent in body');
+    }
+    else{
+
+        songs.push({
+            id: songs.length+1,
+            ...req.body
+        });
+        return res.status(200).send(req.body);
+
+    }
+
+});
+
+app.put('/api/songs/:id',(req,res) => {
+
+    const song = songs.find(e => e.id === parseInt(req.params.id));
+
+    if(song === undefined){
+        return res.status(404).send(`Unable to find song with id : ${req.params.id} in database`);
+    }
+    else{
+
+        const { error, value } = musicSchema.validate(req.body);
+
+        if(error){
+            res.status(400).send('Invalid song object sent in body of request');
+        }
+        else{
+            song.genre = req.body.genre;
+            song.title = req.body.title;
+        }
+
+        return res.send(song);
+    }
+
+});
+
+app.put('api/songs/byGenre/:genreType/:newGenre', (req,res) => {
+
+    const genreSongs = songs.filter(e => e.genre === req.params.genreType);
+
+    if(genreSongs.length === 0){
+        return res.status(404).send(`Unable to find songs of the genre type ${req.params.genreType} in database`);
+    }
+    else{
+        songs = songs.map(e => e.genre === req.params.genreType? e.genre = req.params.newGenre: e);
+        return res.send(songs);
+    }
+
+});
+
+app.delete('/api/songs/:id',(req,res) => {
+
+    const song = songs.find(e => e.id === parseInt(req.params.id));
+
+    if(song === undefined){
+        return res.status(404).send(`Song with id ${req.params.id} unable to be found`);
+    }
+    else{
+        const index = songs.findIndex(e => e.id === req.params.id);
+        const deletedSong = songs.splice(index,1);
+        return res.send(deletedSong);
+    }
+
+})
 
 
 
