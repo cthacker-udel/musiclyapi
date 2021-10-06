@@ -1,0 +1,15 @@
+{
+  "name": "musicly",
+  "version": "1.0.0",
+  "description": "musicapp",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "musicapp",
+    "restapi"
+  ],
+  "author": "cthacker-udel",
+  "license": "ISC"
+}
