@@ -11,7 +11,7 @@ const songSchema = Joi.object({
 
 });
 
-const songs = [];
+let songs = [];
 
 app.get('/',(req,res) => {
 
@@ -24,7 +24,7 @@ app.get('/',(req,res) => {
 
 });
 
-app.get(':id',(req,res) => {
+app.get('/:id',(req,res) => {
 
     const song = songs.find(e => e.id === parseInt(req.params.id));
 
@@ -38,7 +38,7 @@ app.get(':id',(req,res) => {
 
 });
 
-app.get('byGenre/:genreType',(req,res) => {
+app.get('/byGenre/:genreType',(req,res) => {
 
     const theSongs = songs.filter(e => e.genre.toLowerCase() === req.params.genreType.toLowerCase());
 
@@ -51,7 +51,7 @@ app.get('byGenre/:genreType',(req,res) => {
 
 });
 
-app.get('byTitle/:titleName',(req,res) => {
+app.get('/byTitle/:titleName',(req,res) => {
 
     const theSong = songs.find(e => e.title === req.params.titleName);
 
@@ -107,7 +107,7 @@ app.put('/api/songs/:id',(req,res) => {
 
 });
 
-app.put('api/songs/byGenre/:genreType/:newGenre', (req,res) => {
+app.put('/byGenre/:genreType/:newGenre', (req,res) => {
 
     const genreSongs = songs.filter(e => e.genre === req.params.genreType);
 
@@ -115,13 +115,13 @@ app.put('api/songs/byGenre/:genreType/:newGenre', (req,res) => {
         return res.status(404).send(`Unable to find songs of the genre type ${req.params.genreType} in database`);
     }
     else{
-        songs = songs.map(e => e.genre === req.params.genreType? e.genre = req.params.newGenre: e);
+        songs = songs.map(e => e.genre === req.params.genreType? {id: e.id, title: e.title,genre: req.params.newGenre}: e);
         return res.send(songs);
     }
 
 });
 
-app.delete('/api/songs/:id',(req,res) => {
+app.delete('/:id',(req,res) => {
 
     const song = songs.find(e => e.id === parseInt(req.params.id));
 
